@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CropAI Connect</title>
+    <meta name="description" content="Sign in to CropAI Connect – your personalized AI-powered crop recommendation dashboard.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/auth.css">
+</head>
+
+<body class="auth-page">
+
+    <!-- Animated background particles -->
+    <div class="auth-bg-particles">
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="particle p3"></div>
+    </div>
+
+    <div class="auth-container">
+        <!-- Sidebar with Image Slider -->
+        <div class="auth-sidebar">
+            <div class="slider-container" id="authSlider">
+                <div class="slide active">
+                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000&auto=format&fit=crop" alt="Lush Agricultural Field">
+                    <div class="slide-content">
+                        <h2>Precision Field Analysis</h2>
+                        <p>Our AI analyzes soil data directly from the field for instant results.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop" alt="Smart Farming Infographic">
+                    <div class="slide-content">
+                        <h2>Smart Farming Technology</h2>
+                        <p>Integrating IoT and AI to optimize every aspect of your agricultural yield.</p>
+                    </div>
+                </div>
+                <!-- Removed 3rd slide as per user request to keep only these -->
+                <div class="slider-dots" id="sliderDots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Login Content -->
+        <div class="auth-main">
+            <div class="auth-card" id="authCard">
+                <div class="auth-header">
+                    <a href="index.html" class="logo">
+                        <div class="logo-dot"></div>
+                        CropAI<span>Connect</span>
+                    </a>
+                    <h1>Welcome Back</h1>
+                    <p>Access your personalized farming intelligence</p>
+                </div>
+
+                <!-- Alert box for errors/success messages -->
+                <div class="auth-alert" id="authAlert" role="alert" aria-live="polite"></div>
+
+                <div class="divider">sign in</div>
+
+                <form class="auth-form" id="loginForm" novalidate>
+                    <div class="input-group">
+                        <label for="loginEmail">Email Address</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input
+                                type="email"
+                                id="loginEmail"
+                                name="email"
+                                class="auth-input"
+                                placeholder="name@farm.com"
+                                autocomplete="email"
+                                required>
+                        </div>
+                        <span class="field-error" id="emailError"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input
+                                type="password"
+                                id="loginPassword"
+                                name="password"
+                                class="auth-input"
+                                placeholder="••••••••"
+                                autocomplete="current-password"
+                                required>
+                            <button type="button" class="toggle-password" id="togglePassword" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                        <span class="field-error" id="passwordError"></span>
+                    </div>
+
+                    <div class="remember-forgot">
+                        <label class="remember-me">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Keep me logged in</span>
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn full-width primary-glow" id="loginBtn">
+                        <i class="fas fa-sign-in-alt btn-icon"></i>
+                        <span class="btn-text">Sign In to Dashboard</span>
+                        <div class="loader-inner"></div>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html">Create an account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Configuration ────────────────────────────────────────────────
+        const API_BASE = 'http://localhost:5000/api';
+
+        const slides      = document.querySelectorAll('.slide');
+        const dots        = document.querySelectorAll('.dot');
+        let currentSlide  = 0;
+
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Auto-advance slides every 5 seconds
+        setInterval(nextSlide, 5000);
+
+        // ─── DOM References ───────────────────────────────────────────────
+        const form        = document.getElementById('loginForm');
+        const loginBtn    = document.getElementById('loginBtn');
+        const btnText     = loginBtn.querySelector('.btn-text');
+        const authAlert   = document.getElementById('authAlert');
+        const togglePwd   = document.getElementById('togglePassword');
+        const pwdInput    = document.getElementById('loginPassword');
+        const eyeIcon     = document.getElementById('eyeIcon');
+
+        // ─── Toggle Password Visibility ───────────────────────────────────
+        togglePwd.addEventListener('click', () => {
+            const isHidden = pwdInput.type === 'password';
+            pwdInput.type = isHidden ? 'text' : 'password';
+            eyeIcon.className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
+
+        // ─── Show Alert Banner ────────────────────────────────────────────
+        function showAlert(message, type = 'error') {
+            authAlert.textContent = message;
+            authAlert.className = `auth-alert show ${type}`;
+            authAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideAlert() {
+            authAlert.className = 'auth-alert';
+        }
+
+        // ─── Set Loading State ─────────────────────────────────────────────
+        function setLoading(loading) {
+            loginBtn.disabled = loading;
+            loginBtn.classList.toggle('loading', loading);
+            btnText.textContent = loading ? 'Authenticating…' : 'Sign In to Dashboard';
+        }
+
+        // ─── Form Validation ───────────────────────────────────────────────
+        function validateForm(email, password) {
+            let valid = true;
+            document.getElementById('emailError').textContent   = '';
+            document.getElementById('passwordError').textContent = '';
+
+            if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+                document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+                valid = false;
+            }
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Password is required.';
+                valid = false;
+            }
+            return valid;
+        }
+
+        // ─── Form Submit Handler ───────────────────────────────────────────
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const email    = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const remember = document.getElementById('rememberMe').checked;
+
+            if (!validateForm(email, password)) return;
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Login failed. Please try again.');
+                }
+
+                // ── Save token & user info ──
+                const storage = remember ? localStorage : sessionStorage;
+                storage.setItem('cropai_token', data.token);
+                storage.setItem('cropai_user',  JSON.stringify(data.user));
+
+                // ── Show success & redirect ──
+                showAlert(`✅ Welcome back, ${data.user.name}! Redirecting…`, 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1200);
+
+            } catch (err) {
+                showAlert(err.message);
+                setLoading(false);
+            }
+        });
+
+        // ─── Auto-redirect if already logged in ───────────────────────────
+        const existingToken = localStorage.getItem('cropai_token') || sessionStorage.getItem('cropai_token');
+        if (existingToken) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>
